@@ -52,7 +52,7 @@ class TicTacToe < Processing::App
   end
 
   def available_squares
-    all_squares - taken_squares
+    @available_squares ||= all_squares - taken_squares
   end
 
   def taken_squares
@@ -79,12 +79,17 @@ class TicTacToe < Processing::App
     winning_sets.each do |set|
       if set.all? {|square| current_players_taken_squares.include?(square)}
         declare_winner(current_player)
+        freeze_board
       end
     end
   end
 
   def declare_winner(player)
     puts "#{player} is the winner!"
+  end
+
+  def freeze_board
+    @available_squares = []
   end
 
   def winning_sets
