@@ -2,7 +2,7 @@ require 'ruby-processing'
 require 'set'
 
 class TicTacToe < Processing::App
-  attr_accessor :current_player
+  attr_accessor :current_player, :winner
   def setup
     size 800, 800
     background(0, 0, 0)
@@ -52,7 +52,7 @@ class TicTacToe < Processing::App
   end
 
   def available_squares
-    @available_squares ||= all_squares - taken_squares
+    all_squares - taken_squares
   end
 
   def taken_squares
@@ -76,6 +76,7 @@ class TicTacToe < Processing::App
   end
 
   def check_for_win
+    print_draw if draw?
     winning_sets.each do |set|
       if set.all? {|square| current_players_taken_squares.include?(square)}
         declare_winner(current_player)
@@ -84,8 +85,20 @@ class TicTacToe < Processing::App
     end
   end
 
+  def draw?
+    available_squares.empty?
+  end
+
+  def print_draw
+    textSize 16
+    fill 256, 256, 254
+    text("The game is a draw", 310, 65)
+  end
+
   def declare_winner(player)
-    puts "#{player} is the winner!"
+    textSize 16
+    fill 256, 256, 254
+    text("#{player} is the winner!", 310, 65)
   end
 
   def freeze_board
