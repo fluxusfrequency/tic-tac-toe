@@ -1,4 +1,5 @@
 require 'ruby-processing'
+require 'set'
 
 class TicTacToe < Processing::App
   attr_accessor :current_player
@@ -18,6 +19,7 @@ class TicTacToe < Processing::App
     line 488, 133, 488, 666
     line 133, 301, 666, 301
     line 133, 488, 666, 488
+
     #borders
     line 133, 133, 666, 133
     line 666, 133, 666, 666
@@ -27,12 +29,18 @@ class TicTacToe < Processing::App
 
   def mouse_pressed
     all_squares.each do |square|
-      if x_coordinate_range_for(square).include?(mouse_x)  && y_coordinate_range_for(square).include?(mouse_y) && available_squares.include?(square)
-        draw_square(square)
-	taken_squares << square
+      if in_range?(mouse_x, mouse_y, square) && available_squares.include?(square)
+        draw_move(square)
+	      taken_squares << square
+        current_players_taken_squares << square
+        check_for_win
+        change_player
       end
     end
-    change_player
+  end
+
+  def in_range?(x_coordinate, y_coordinate, square)
+    x_coordinate_range_for(square).include?(x_coordinate)  && y_coordinate_range_for(square).include?(y_coordinate)
   end
 
   def change_player
@@ -51,7 +59,46 @@ class TicTacToe < Processing::App
     @taken_square ||=  []
   end
 
-  def draw_square(square)
+  def current_players_taken_squares
+    if current_player == 'x'
+      player_x_taken_squares
+    else
+      player_o_taken_squares
+    end
+  end
+
+  def player_x_taken_squares
+    @player_x_taken_squares ||= []
+  end
+
+  def player_o_taken_squares
+    @player_o_taken_squares ||= []
+  end
+
+  def check_for_win
+    winning_sets.each do |set|
+      if set.all? {|square| current_players_taken_squares.include?(square)}
+        declare_winner(current_player)
+      end
+    end
+  end
+
+  def declare_winner(player)
+    puts "#{player} is the winner!"
+  end
+
+  def winning_sets
+    [Set.new([square_0, square_1, square_2]),
+    Set.new([square_3, square_4, square_5]),
+    Set.new([square_6, square_7, square_8]),
+    Set.new([square_0, square_3, square_6]),
+    Set.new([square_1, square_4, square_7]),
+    Set.new([square_2, square_6, square_8]),
+    Set.new([square_0, square_4, square_8]),
+    Set.new([square_2, square_4, square_6])]
+  end
+
+  def draw_move(square)
     render_x(square) if current_player == 'x'
     render_o(square) if current_player == 'o'
   end
