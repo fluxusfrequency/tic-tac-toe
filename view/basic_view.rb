@@ -1,11 +1,11 @@
 require 'ruby-processing'
 
 class TicTacToe < Processing::App
-
+  attr_accessor :current_player
   def setup
     size 800, 800
     background(0, 0, 0)
-    @button = false
+    @current_player = 'x'
   end
 
   def draw
@@ -38,40 +38,44 @@ class TicTacToe < Processing::App
   end
 
   def mouse_pressed
-    target = [mouse_x, mouse_y]
-    # case target
-    # (x_coordinate_range_for(square_0).include?(mouse_x)  && y_coordinate_range_for(square).include?(mouse_y)
-    #     draw_square(square_0)
-      if mouse_x > square_1[0][0] && mouse_x < square_1[1][0] && mouse_y < square_1[3][1] && mouse_y > square_1[0][1]
-        draw_square(square_1)
+    all_squares.each do |square|
+      if x_coordinate_range_for(square).include?(mouse_x)  && y_coordinate_range_for(square).include?(mouse_y) && available_squares.include?(square)
+        draw_square(square)
+	taken_squares << square
       end
-      # when square_2[0][0] < target[0] < square_2[1][0] && square_2[0][1] < y < square_2[3][1]
-      #   draw_square(square_2)
-      # when square_3[0][0] < target[0] < square_3[1][0] && square_3[0][1] < y < square_3[3][1]
-      #   draw_square(square_3)
-      # when square_4[0][0] < target[0] < square_4[1][0] && square_4[0][1] < y < square_4[3][1]
-      #   draw_square(square_4)
-      # when square_5[0][0] < target[0] < square_5[1][0] && square_5[0][1] < y < square_5[3][1]
-      #   draw_square(square_5)
-      # when square_6[0][0] < target[0] < square_6[1][0] && square_6[0][1] < y < square_6[3][1]
-      #   draw_square(square_6)
-      # when square_7[0][0] < target[0] < square_7[1][0] && square_7[0][1] < y < square_7[3][1]
-      #   draw_square(square_7)
-      # when square_8[0][0] < target[0] < square_8[1][0] && square_8[0][1] < y < square_8[3][1]
-      #   draw_square(square_8)
-      # else
-      # return
-    # end
+    end
+    change_player
+  end
+
+  def change_player
+    if @current_player == 'x'
+      @current_player = 'o'
+    else
+      @current_player = 'x'
+    end
+  end
+
+  def available_squares
+    all_squares - taken_squares
+  end
+
+  def taken_squares
+    @taken_square ||=  []
   end
 
   def draw_square(square)
-    render_x(square) # if current_player_x?
-    # render_o(square) if current_player_o?
+    render_x(square) if current_player == 'x'
+    render_o(square) if current_player == 'o'
   end
 
   def render_x(square)
     line square[0][0]+10, square[0][1]+10, square[3][0]-10, square[3][1]-10
     line square[1][0]-10, square[1][1]+10, square[2][0]+10, square[2][1]-10
+  end
+
+  def render_o(square)
+    fill 0, 0, 0, 50
+    ellipse (square[0][0]+square[3][0])/2, (square[0][1]+square[3][1])/2, 148, 148
   end
 
   def x_coordinate_range_for(square)
@@ -82,6 +86,17 @@ class TicTacToe < Processing::App
     (square[0][1]..square[3][1])
   end
 
+  def all_squares
+    [square_0,
+    square_1,
+    square_2,
+    square_3,
+    square_4,
+    square_5,
+    square_6,
+    square_7,
+    square_8]
+  end
   def square_0
     [[133,133], [301,133], [133,301], [301, 301]]
   end
