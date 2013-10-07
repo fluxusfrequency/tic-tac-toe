@@ -5,8 +5,13 @@ require_relative '../view/board_view.rb'
 
 class BoardViewTest < Minitest::Test
 
-  def setup
+  attr_reader :board
 
+  def setup
+    @board = TicTacToe::TicTacToeBoard.new
+  end
+
+  def test_it
   end
 
 end
