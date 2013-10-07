@@ -5,12 +5,9 @@ class TicTacToe < Processing::App
   def setup
     size 800, 800
     background(0, 0, 0)
-    smooth
-    create_lines
   end
 
   def draw
-    stroke 256,256,256
     create_lines
     render_x(square_0)
     render_x(square_1)
@@ -20,6 +17,7 @@ class TicTacToe < Processing::App
   end
 
   def create_lines
+    stroke 256,256,256
     line 301, 133, 301, 666
     line 488, 133, 488, 666
     line 133, 301, 666, 301
@@ -55,7 +53,22 @@ class TicTacToe < Processing::App
   def square_4
     [[301,301], [488,301], [301, 488], [488,488]]
   end
+
+  def square_5
+    [[488, 301],[666, 301],[488, 488],[666, 488]]
+  end
+
+  def square_6
+    [[133, 488],[301, 488],[133, 666],[301, 666]]
+  end
+
+  def square_7
+    [[301, 488],[488, 488], [301, 666], [488, 666]]
+  end
+
+  def square_8
+    [[488, 488],[666, 488], [488, 666], [666, 666]]
+  end
 end
 
-TicTacToe.new(:width => 800, :height => 800,
-  :title => "TicTacToe", :full_screen => false)
+TicTacToe.new(:title => "TicTacToe", :full_screen => false)
