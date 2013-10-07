@@ -10,18 +10,6 @@ class TicTacToe < Processing::App
 
   def draw
     create_lines
-    # if @button
-    #   render_x(square_5)
-    # end
-    # render_x(square_0)
-    # render_x(square_1)
-    # render_x(square_2)
-    # render_x(square_3)
-    # render_x(square_4)
-    # render_x(square_5)
-    # render_x(square_6)
-    # render_x(square_7)
-    # render_x(square_8)
   end
 
   def create_lines
@@ -97,6 +85,20 @@ class TicTacToe < Processing::App
     square_7,
     square_8]
   end
+
+  # def setup_coordinates(board_width, board_height)
+  #   @point_1 == [board_width*1/5, board_height*1/5]
+  #   @point_2 == [board_width*2/5, board_height*1/5]
+  #   @point_3 == [board_width*3/5, board_height*1/5]
+  #   @point_4 == [board_width*1/5, board_height*2/5]
+  #   @point_6 == [board_width*2/5, board_height*2/5]
+  #   @point_5 == [board_width*3/5, board_height*2/5]
+  #   @point_7 == [board_width*1/5, board_height*3/5]
+  #   @point_8 == [board_width*2/5, board_height*3/5]
+  #   @point_9 == [board_width*3/5, board_height*3/5]
+  # end
+
+
   def square_0
     [[133,133], [301,133], [133,301], [301, 301]]
   end
