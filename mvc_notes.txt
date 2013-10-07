@@ -1,0 +1,21 @@
+model
+
+  state of the board
+  whose move
+  moves allowed
+  which moves have been played
+  validations: who can play next
+
+
+view
+
+  ruby processing
+  visualization
+  draw
+
+
+controller
+
+  mouse clicks(x,y)
+  keyboard entry(spaces 1-9, or cursor)
+  manipulation of app
