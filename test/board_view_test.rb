@@ -1,9 +1,9 @@
 gem 'minitest'
 require 'minitest/autorun'
 require 'minitest/pride'
-require_relative './tictactoe.rb'
+require_relative '../view/board_view.rb'
 
-class TicTacToeTest < Minitest::Test
+class BoardViewTest < Minitest::Test
 
   def setup
 
