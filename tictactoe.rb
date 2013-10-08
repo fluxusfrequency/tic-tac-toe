@@ -64,8 +64,6 @@ class MoveView
   end
 
   def render_x(square)
-    # If the square size was less than 10 this might blow up
-    # TO DO: change this to reference vertices once we've squares to reference them
     app.line square[0][0]+10, square[0][1]+10, square[3][0]-10, square[3][1]-10
     app.line square[1][0]-10, square[1][1]+10, square[2][0]+10, square[2][1]-10
   end
@@ -78,7 +76,7 @@ end
 
 class TicTacToeModel
 
-  attr_accessor :window_width, :window_height, :app, :available_squares,
+  attr_accessor :window_width, :window_height, :app,
     :v1, :v2, :v3, :v4, :v5, :v6, :v7, :v8,
     :v9, :v10, :v11, :v12, :v13, :v14, :v15, :v16
 
@@ -93,11 +91,11 @@ class TicTacToeModel
   end
 
   def taken_squares
-    @taken_square ||=  []
+    @taken_squares ||=  []
   end
 
   def empty_available_squares
-    @available_squares =  []
+    @taken_squares = all_squares
   end
 
   def player_x_taken_squares
@@ -114,7 +112,7 @@ class TicTacToeModel
     Set.new([square_6, square_7, square_8]),
     Set.new([square_0, square_3, square_6]),
     Set.new([square_1, square_4, square_7]),
-    Set.new([square_2, square_6, square_8]),
+    Set.new([square_2, square_5, square_8]),
     Set.new([square_0, square_4, square_8]),
     Set.new([square_2, square_4, square_6])]
   end
@@ -155,7 +153,6 @@ class TicTacToeModel
     @v16 = [window_width*4/5, window_height*4/5]
   end
 
-  #convert to vertices
   def square_0
     [v1, v2, v5, v6]
   end
@@ -204,6 +201,7 @@ class TicTacToe < Processing::App
     @mover = MoveView.new(self, model)
     @current_player = 'x'
     @key = ''
+    @game_over = false
   end
 
   def draw
@@ -259,30 +257,36 @@ class TicTacToe < Processing::App
   end
 
   def check_for_win
-   mover.print_draw if draw?
+    if draw?
+      mover.print_draw
+      end_game
+      return self
+    end
     model.winning_sets.each do |set|
       if set.all? {|square| current_players_taken_squares.include?(square)}
         mover.declare_winner(current_player)
-        freeze_board
-        play_again?
+        end_game
       end
     end
+  end
+
+  def end_game
+    freeze_board
+    play_again?
+    @game_over = true
   end
 
   def play_again?
     textSize 16
     fill 256, 256, 254
     text("Press n to start a new game.", model.window_width*2/5, model.window_height*9/10)
-
-    puts "#{@key.inspect}" if @key
-    puts "nil" if @key.nil?
-    # if @key == "n"
-    #   self.setup
-    # end
   end
 
   def key_pressed
-    @key = key
+    if @game_over && key == "n"
+      self.setup
+      @model = TicTacToeModel.new(self)
+    end
   end
 
 end
