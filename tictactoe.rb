@@ -10,9 +10,8 @@ class BoardView
   def initialize(app, model)
     @app ||= app
     @model ||= model
-    background(0, 0, 0)
-    set_window_size(800,800)
-    size model.window_width, model.window_height
+    app.background(0, 0, 0)
+    app.size model.window_width, model.window_height
   end
 
   def create_board
@@ -47,6 +46,11 @@ class MoveView
     @app ||= app
   end
 
+  def draw_move(square)
+    render_x(square) if app.current_player == 'x'
+    render_o(square) if app.current_player == 'o'
+  end
+
   def print_draw(model)
     app.textSize 16
     app.fill 256, 256, 254
@@ -70,17 +74,17 @@ class MoveView
     app.fill 0, 0, 0, 50
     app.ellipse((square[0][0]+square[3][0])/2, (square[0][1]+square[3][1])/2, model.window_width*1/5, model.window_height*1/5)
   end
-
 end
 
 class TicTacToeModel
 
-  attr_accessor :window_width, :window_height, :app,
+  attr_accessor :window_width, :window_height, :app, :available_squares,
     :v1, :v2, :v3, :v4, :v5, :v6, :v7, :v8,
     :v9, :v10, :v11, :v12, :v13, :v14, :v15, :v16
 
   def initialize(app)
     @app = app
+    set_window_size
     define_vertices
   end
 
@@ -90,6 +94,10 @@ class TicTacToeModel
 
   def taken_squares
     @taken_square ||=  []
+  end
+
+  def empty_available_squares
+    @available_squares =  []
   end
 
   def player_x_taken_squares
@@ -188,25 +196,22 @@ end
 
 class TicTacToe < Processing::App
 
-  attr_accessor :current_player, :board, :model, :mover
+  attr_accessor :current_player, :model,:board, :mover
 
   def setup
-    @model = TicTacToeModel.new(self)
+    @model ||= TicTacToeModel.new(self)
     @board = BoardView.new(self, model)
     @mover = MoveView.new(self, model)
+    @current_player = 'x'
   end
 
   def draw
-    board.create_board(model)
-  end
-
-  def initialize
-    @current_player = 'x'
+    board.create_board
   end
 
   def mouse_pressed
     model.all_squares.each do |square|
-      if in_range?(mouse_x, mouse_y, square) && available_squares.include?(square)
+      if in_range?(mouse_x, mouse_y, square) && model.available_squares.include?(square)
         mover.draw_move(square)
         model.taken_squares << square
         current_players_taken_squares << square
@@ -245,13 +250,22 @@ class TicTacToe < Processing::App
   end
 
   def freeze_board
-    model.available_squares = []
+    model.empty_available_squares
   end
 
   def draw?
     model.available_squares.empty?
   end
 
+  def check_for_win
+   mover.print_draw if draw?
+    model.winning_sets.each do |set|
+      if set.all? {|square| current_players_taken_squares.include?(square)}
+        mover.declare_winner(current_player)
+        freeze_board
+      end
+    end
+  end
 end
 
 TicTacToe.new
