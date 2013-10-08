@@ -3,86 +3,84 @@ require 'set'
 
 class BoardView
 
-  attr_reader :window_width, :window_height, :model,
+  attr_reader :window_width, :window_height, :app, :model,
     :v1, :v2, :v3, :v4, :v5, :v6, :v7, :v8,
     :v9, :v10, :v11, :v12, :v13, :v14, :v15, :v16
 
-  def initialize
-    model = TicTacToeModel.new
+  def initialize(app, model)
+    @app ||= app
+    @model ||= model
     background(0, 0, 0)
     set_window_size(800,800)
-    size @window_width, @window_height
-  end
-
-  def draw
-    create_board
+    size model.window_width, model.window_height
   end
 
   def create_board
-    stroke 256,256,256
+    app.stroke 256,256,256
     create_grid
     create_borders
   end
 
   def create_grid
-    line v2[0], v2[1], v14[0], v14[1]
-    line v3[0], v3[1], v15[0], v15[1]
-    line v5[0], v5[1], v8[0], v8[1]
-    line v9[0], v9[1], v12[0], v12[1]
+    app.line model.v2[0], model.v2[1], model.v14[0], model.v14[1]
+    app.line model.v3[0], model.v3[1], model.v15[0], model.v15[1]
+    app.line model.v5[0], model.v5[1], model.v8[0], model.v8[1]
+    app.line model.v9[0], model.v9[1], model.v12[0], model.v12[1]
   end
 
   def create_borders
-    line v1[0], v1[1], v4[0], v4[1]
-    line v4[0], v4[1], v16[0], v16[1]
-    line v13[0], v13[1], v16[0], v16[1]
-    line v1[0], v1[1], v13[0], v13[1]
+    app.line model.v1[0], model.v1[1], model.v4[0], model.v4[1]
+    app.line model.v4[0], model.v4[1], model.v16[0], model.v16[1]
+    app.line model.v13[0], model.v13[1], model.v16[0], model.v16[1]
+    app.line model.v1[0], model.v1[1], model.v13[0], model.v13[1]
   end
 
-
-  def set_window_size(width=800, height=800)
-    @window_width = width
-    @window_height = height
-  end
 end
 
-class MoveView < Processing::App
+class MoveView
 
-#  attr_reader :window_width, :window_height, :v1, :v2, :v3, :v4, :v5, :v6, :v7, :v8, :v9, :v10, :v11, :v12, :v13, :v14, :v15, :v16
+  attr_reader :model, :squares, :app
 
-  def setup
-    #array of Squares calling from the controller
+  def initialize(app, model)
+    @model = model
+    @squares = model.all_squares
+    @app ||= app
   end
 
-  def print_draw
-    textSize 16
-    fill 256, 256, 254
-    text("The game is a draw", 310, 65)
+  def print_draw(model)
+    app.textSize 16
+    app.fill 256, 256, 254
+    app.text("The game is a draw", model.window_width*2/5, model.window_height*1/10)
   end
 
   def declare_winner(player)
-    textSize 16
-    fill 256, 256, 254
-    text("#{player} is the winner!", 310, 65)
+    app.textSize 16
+    app.fill 256, 256, 254
+    app.text("#{player} is the winner!", model.window_width*2/5, model.window_height*1/10)
   end
 
   def render_x(square)
-    line square[0][0]+10, square[0][1]+10, square[3][0]-10, square[3][1]-10
-    line square[1][0]-10, square[1][1]+10, square[2][0]+10, square[2][1]-10
+    # If the square size was less than 10 this might blow up
+    # TO DO: change this to reference vertices once we've squares to reference them
+    app.line square[0][0]+10, square[0][1]+10, square[3][0]-10, square[3][1]-10
+    app.line square[1][0]-10, square[1][1]+10, square[2][0]+10, square[2][1]-10
   end
 
   def render_o(square)
-    fill 0, 0, 0, 50
-    ellipse (square[0][0]+square[3][0])/2, (square[0][1]+square[3][1])/2, 148, 148
+    app.fill 0, 0, 0, 50
+    app.ellipse((square[0][0]+square[3][0])/2, (square[0][1]+square[3][1])/2, model.window_width*1/5, model.window_height*1/5)
   end
 
 end
 
 class TicTacToeModel
 
-  attr_accessor :v1, :v2, :v3, :v4, :v5, :v6, :v7, :v8,
-  :v9, :v10, :v11, :v12, :v13, :v14, :v15, :v16
+  attr_accessor :window_width, :window_height, :app,
+    :v1, :v2, :v3, :v4, :v5, :v6, :v7, :v8,
+    :v9, :v10, :v11, :v12, :v13, :v14, :v15, :v16
 
-  def initialize
+  def initialize(app)
+    @app = app
     define_vertices
   end
 
@@ -92,14 +90,6 @@ class TicTacToeModel
 
   def taken_squares
     @taken_square ||=  []
-  end
-
-  def current_players_taken_squares
-    if current_player == 'x'
-      player_x_taken_squares
-    else
-      player_o_taken_squares
-    end
   end
 
   def player_x_taken_squares
@@ -133,6 +123,11 @@ class TicTacToeModel
     square_8]
   end
 
+  def set_window_size(width=800, height=800)
+    @window_width = width
+    @window_height = height
+  end
+
   def define_vertices
     @v1 = [window_width*1/5, window_height*1/5]
     @v2 = [window_width*2/5, window_height*1/5]
@@ -152,7 +147,7 @@ class TicTacToeModel
     @v16 = [window_width*4/5, window_height*4/5]
   end
 
-  #conver to vertices
+  #convert to vertices
   def square_0
     [[133,133], [301,133], [133,301], [301, 301]]
   end
@@ -193,26 +188,27 @@ end
 
 class TicTacToe < Processing::App
 
-  attr_accessor :current_player, :board
+  attr_accessor :current_player, :board, :model, :mover
 
   def setup
-    @board = Board.new
+    @model = TicTacToeModel.new(self)
+    @board = BoardView.new(self, model)
+    @mover = MoveView.new(self, model)
   end
 
   def draw
-    board.draw
+    board.create_board(model)
   end
 
-  def initialize(squares)
-    #pass square in logic
+  def initialize
     @current_player = 'x'
   end
 
   def mouse_pressed
-    all_squares.each do |square|
+    model.all_squares.each do |square|
       if in_range?(mouse_x, mouse_y, square) && available_squares.include?(square)
-        draw_move(square)
-        taken_squares << square
+        mover.draw_move(square)
+        model.taken_squares << square
         current_players_taken_squares << square
         check_for_win
         change_player
@@ -232,6 +228,14 @@ class TicTacToe < Processing::App
     end
   end
 
+  def current_players_taken_squares
+    if current_player == 'x'
+      model.player_x_taken_squares
+    else
+      model.player_o_taken_squares
+    end
+  end
+
   def x_coordinate_range_for(square)
     (square[0][0]..square[1][0])
   end
@@ -241,10 +245,13 @@ class TicTacToe < Processing::App
   end
 
   def freeze_board
-    @available_squares = []
+    model.available_squares = []
   end
 
   def draw?
-    available_squares.empty?
+    model.available_squares.empty?
   end
+
 end
+
+TicTacToe.new
