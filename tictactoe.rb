@@ -51,7 +51,7 @@ class MoveView
     render_o(square) if app.current_player == 'o'
   end
 
-  def print_draw(model)
+  def print_draw
     app.textSize 16
     app.fill 256, 256, 254
     app.text("The game is a draw", model.window_width*2/5, model.window_height*1/10)
@@ -157,23 +157,23 @@ class TicTacToeModel
 
   #convert to vertices
   def square_0
-    [[133,133], [301,133], [133,301], [301, 301]]
+    [v1, v2, v5, v6]
   end
 
   def square_1
-    [[301,133], [488,133], [301, 301], [488,301]]
+    [v2, v3, v6, v7]
   end
 
   def square_2
-    [[488,133], [666,133], [488, 301], [666,301]]
+    [v3, v4, v7, v8]
   end
 
   def square_3
-    [[133,301], [301,301], [133, 488], [301,488]]
+    [v5, v6, v9, v10]
   end
 
   def square_4
-    [[301,301], [488,301], [301, 488], [488,488]]
+    [v6, v7, v10, v11]
   end
 
   def square_5
@@ -181,15 +181,15 @@ class TicTacToeModel
   end
 
   def square_6
-    [v9, v10, v11, v12]
+    [v9, v10, v13, v14]
   end
 
   def square_7
-    [[301, 488],[488, 488], [301, 666], [488, 666]]
+    [v10, v11, v14, v15]
   end
 
   def square_8
-    [[488, 488],[666, 488], [488, 666], [666, 666]]
+    [v11, v12, v15, v16]
   end
 
 end
@@ -203,6 +203,7 @@ class TicTacToe < Processing::App
     @board = BoardView.new(self, model)
     @mover = MoveView.new(self, model)
     @current_player = 'x'
+    @key = ''
   end
 
   def draw
@@ -263,9 +264,27 @@ class TicTacToe < Processing::App
       if set.all? {|square| current_players_taken_squares.include?(square)}
         mover.declare_winner(current_player)
         freeze_board
+        play_again?
       end
     end
   end
+
+  def play_again?
+    textSize 16
+    fill 256, 256, 254
+    text("Press n to start a new game.", model.window_width*2/5, model.window_height*9/10)
+
+    puts "#{@key.inspect}" if @key
+    puts "nil" if @key.nil?
+    # if @key == "n"
+    #   self.setup
+    # end
+  end
+
+  def key_pressed
+    @key = key
+  end
+
 end
 
 TicTacToe.new
