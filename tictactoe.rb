@@ -177,11 +177,11 @@ class TicTacToeModel
   end
 
   def square_5
-    [[488, 301],[666, 301],[488, 488],[666, 488]]
+    [ v7, v8, v11, v12]
   end
 
   def square_6
-    [[133, 488],[301, 488],[133, 666],[301, 666]]
+    [v9, v10, v11, v12]
   end
 
   def square_7
