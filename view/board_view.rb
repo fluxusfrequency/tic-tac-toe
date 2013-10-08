@@ -1,4 +1,7 @@
-class BoardView < Processing::App
+require 'ruby-processing'
+require './tictactoe.rb'
+
+class BoardView < TicTacToe
 
   attr_reader :window_width, :window_height, :v1, :v2, :v3, :v4, :v5, :v6, :v7, :v8, :v9, :v10, :v11, :v12, :v13, :v14, :v15, :v16
 
