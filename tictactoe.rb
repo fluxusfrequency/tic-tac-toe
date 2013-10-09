@@ -3,9 +3,7 @@ require 'set'
 
 class BoardView
 
-  attr_reader :app, :vertex_dude,
-    :v1, :v2, :v3, :v4, :v5, :v6, :v7, :v8,
-    :v9, :v10, :v11, :v12, :v13, :v14, :v15, :v16
+  attr_reader :app, :vertex_dude
 
   def initialize(app)
     @app ||= app
@@ -44,6 +42,10 @@ class MoveView
     @app ||= app
   end
 
+  def vertex_dude
+    @vertex_dude ||= app.vertex_dude
+  end
+
   def draw_move(square)
     @game_ruler = app.game_ruler
     render_x(square) if game_ruler.current_player == 'x'
@@ -51,34 +53,29 @@ class MoveView
   end
 
   def print_draw
-    @vertex_dude ||= app.vertex_dude
     app.textSize 16
     app.fill 256, 256, 254
     app.text("The game is a draw", vertex_dude.window_width*2/5, vertex_dude.window_height*1/10)
   end
 
   def print_winner(player)
-    @vertex_dude ||= app.vertex_dude
     app.textSize 16
     app.fill 256, 256, 254
     app.text("#{player} is the winner!", vertex_dude.window_width*2/5, vertex_dude.window_height*1/10)
   end
 
   def print_play_again?
-    @vertex_dude ||= app.vertex_dude
     app.textSize 16
     app.fill 256, 256, 254
     app.text("Press n to start a new game.", vertex_dude.window_width*2/5, vertex_dude.window_height*9/10)
   end
 
   def render_x(square)
-    @vertex_dude ||= app.vertex_dude
     app.line square.ul[0]+10, square.ul[1]+10, square.lr[0]-10, square.lr[1]-10
     app.line square.ur[0]-10, square.ur[1]+10, square.ll[0]+10, square.ll[1]-10
   end
 
   def render_o(square)
-    @vertex_dude ||= app.vertex_dude
     app.fill 0, 0, 0, 50
     app.ellipse((square.ul[0]+square.lr[0])/2, (square.ul[1]+square.lr[1])/2, vertex_dude.window_width*1/5, vertex_dude.window_height*1/5)
   end
@@ -98,7 +95,7 @@ class TicTacToeModel
   end
 
   def taken_squares
-    @taken_squares ||=  []
+    @taken_squares ||= []
   end
 
   def empty_available_squares
@@ -130,7 +127,7 @@ class Square
 
   attr_reader :ul, :ur, :ll, :lr, :app, :model
 
-  def initialize(ul, ur, ll, lr,app)
+  def initialize(ul, ur, ll, lr, app)
     @ul = ul
     @ur = ur
     @ll = ll
@@ -140,7 +137,7 @@ class Square
 
   def taken?
     @model = app.model
-    !model.available_squares.include?(self)
+    model.taken_squares.include?(self)
   end
 
   def in_range?(position)
@@ -162,12 +159,12 @@ class VertexDude
     :v1, :v2, :v3, :v4, :v5, :v6, :v7, :v8,
     :v9, :v10, :v11, :v12, :v13, :v14, :v15, :v16
 
-  def initialize
-    set_window_size
+  def initialize(width=800, height=800)
+    set_window_size(width, height)
     define_vertices
   end
 
-  def set_window_size(width=800, height=800)
+  def set_window_size(width, height)
     @window_width = width
     @window_height = height
   end
@@ -215,6 +212,8 @@ class SquareController
 
     @game_ruler = app.game_ruler
     game_ruler.current_players_taken_squares << square
+    game_ruler.check_for_win
+    game_ruler.change_player
   end
 
   def find_square_by_position(position)
@@ -337,7 +336,7 @@ class TicTacToe < Processing::App
     :vertex_dude
 
   def setup
-    @vertex_dude = VertexDude.new
+    @vertex_dude = VertexDude.new(width, height)
     @board = BoardView.new(self)
     @square_controller = SquareController.new(self)
     @model ||= TicTacToeModel.new(self, square_controller.all_squares)
@@ -366,8 +365,6 @@ class TicTacToe < Processing::App
     end
     position = [mouse_x, mouse_y]
     square_controller.take_if_available(position)
-    game_ruler.check_for_win
-    game_ruler.change_player
   end
 
   def key_pressed
@@ -380,4 +377,4 @@ class TicTacToe < Processing::App
 
 end
 
-TicTacToe.new
+TicTacToe.new(:width => 500, :height => 500)
