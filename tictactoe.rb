@@ -202,7 +202,7 @@ class SquareController
   end
 
   def take_if_available(position)
-    square = find_square_by_position(position)
+    square = find_square_by_position(position) || return
     if square.taken?
       return self
     end
@@ -256,7 +256,7 @@ class SquareController
   end
 
   def square_8
-    @square_8 ||= Square.new(vertex_dude.v11, vertex_dude.v12, vertex_dude.v15, vertex_dude, app)
+    @square_8 ||= Square.new(vertex_dude.v11, vertex_dude.v12, vertex_dude.v15, vertex_dude.v16, app)
   end
 
   def all_squares
@@ -321,9 +321,9 @@ class GameRuler
   end
 
   def end_game
+    @game_over = true
     freeze_board
     mover.print_play_again?
-    game_over = true
   end
 
   def freeze_board
@@ -345,11 +345,25 @@ class TicTacToe < Processing::App
     @game_ruler = GameRuler.new(self)
   end
 
+  def clear_attrs
+    @vertex_dude = nil
+    @board = nil
+    @square_controller = nil
+    @model = nil
+    @mover = nil
+    @game_ruler = nil
+  end
+
   def draw
     board.create_board
   end
 
   def mouse_pressed
+
+    # this avoids one weird bug where first click is 0,0
+    if mouse_x == 0 && mouse_y == 0
+      return
+    end
     position = [mouse_x, mouse_y]
     square_controller.take_if_available(position)
     game_ruler.check_for_win
@@ -357,9 +371,10 @@ class TicTacToe < Processing::App
   end
 
   def key_pressed
+    puts key.inspect
     if game_ruler.game_over && key == "n"
+      clear_attrs
       self.setup
-      @model = TicTacToeModel.new(self)
     end
   end
 
